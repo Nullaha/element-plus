@@ -45,6 +45,6 @@ export const localeContextKey: InjectionKey<Ref<Language | undefined>> =
   Symbol('localeContextKey')
 
 export const useLocale = (localeOverrides?: Ref<Language | undefined>) => {
-  const locale = localeOverrides || inject(localeContextKey, ref())!
+  const locale = localeOverrides || inject(localeContextKey, ref())! //! 是 TypeScript 的非空断言，表示我们确信 inject 不会返回 null 或 undefined。
   return buildLocaleContext(computed(() => locale.value || English))
 }

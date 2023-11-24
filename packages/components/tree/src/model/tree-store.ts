@@ -15,6 +15,7 @@ import type {
   TreeStoreOptions,
 } from '../tree.type'
 
+// 用于管理树组件的状态
 export default class TreeStore {
   currentNode: Node
   currentNodeKey: TreeKey
@@ -24,14 +25,14 @@ export default class TreeStore {
   lazy: boolean
   load: LoadFunction
   filterNodeMethod: FilterNodeMethodFunction
-  key: TreeKey
+  key: TreeKey // 树的关键属性 key，用于标识节点的唯一性
   defaultCheckedKeys: TreeKey[]
   checkStrictly: boolean
   defaultExpandedKeys: TreeKey[]
   autoExpandParent: boolean
   defaultExpandAll: boolean
   checkDescendants: boolean
-  props: TreeOptionProps
+  props: TreeOptionProps //使用的时候传的<el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick" />
 
   constructor(options: TreeStoreOptions) {
     this.currentNode = null
@@ -46,13 +47,18 @@ export default class TreeStore {
     this.nodesMap = {}
   }
 
+  // 整个初始化的过程是一个深度优先的递归过程
   initialize() {
+    // 1 创建根节点并对其进行初始化。
     this.root = new Node({
       data: this.data,
       store: this,
     })
-    this.root.initialize()
+    this.root.initialize() // ⭐
+    // ⭐this.root.initialize() 的调用是对树进行初始化的起点，而这个初始化过程会递归地初始化树的所有节点，包括根节点及其所有子节点。
 
+    // 如果树是懒加载的，它会使用提供的 load 函数加载数据。
+    // 2 设置default checked
     if (this.lazy && this.load) {
       const loadFn = this.load
       loadFn(this.root, (data) => {
@@ -178,14 +184,16 @@ export default class TreeStore {
       this._initDefaultCheckedNodes()
     }
   }
-
+  // 注册就是添加到树的nodesMap中咯
   registerNode(node: Node): void {
     const key = this.key
     if (!node || !node.data) return
 
     if (!key) {
+      // 如果树节点没有设置属性key，则使用节点的 id 属性来标识唯一性，将节点添加到 nodesMap 对象中。
       this.nodesMap[node.id] = node
     } else {
+      // 如果节点设置了属性 key，则使用节点的 key 属性来标识唯一性，同样将节点添加到 nodesMap 对象中
       const nodeKey = node.key
       if (nodeKey !== undefined) this.nodesMap[node.key] = node
     }

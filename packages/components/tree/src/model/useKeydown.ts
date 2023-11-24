@@ -18,6 +18,7 @@ export function useKeydown({ el$ }: UseKeydownOption, store: Ref<TreeStore>) {
   const checkboxItems = shallowRef<Nullable<HTMLElement>[]>([])
 
   onMounted(() => {
+    // 初始化了树的 tabindex
     initTabIndex()
   })
 
@@ -107,6 +108,7 @@ export function useKeydown({ el$ }: UseKeydownOption, store: Ref<TreeStore>) {
 
   useEventListener(el$, 'keydown', handleKeydown)
 
+  // 目的是确保在初始化阶段，树组件中具有焦点的元素可以通过键盘导航获得焦点。
   const initTabIndex = (): void => {
     treeItems.value = Array.from(
       el$.value.querySelectorAll(`.${ns.is('focusable')}[role=treeitem]`)
@@ -117,10 +119,12 @@ export function useKeydown({ el$ }: UseKeydownOption, store: Ref<TreeStore>) {
     const checkedItem = el$.value.querySelectorAll(
       `.${ns.is('checked')}[role=treeitem]`
     )
+    // 检查是否存在已选中的树项。如果存在，则将第一个已选中项的 tabindex 设置为 0。
     if (checkedItem.length) {
       checkedItem[0].setAttribute('tabindex', '0')
       return
     }
+    // 如果不存在已选中项，则将第一个树项的 tabindex 设置为 0。
     treeItems.value[0]?.setAttribute('tabindex', '0')
   }
 }

@@ -140,6 +140,7 @@ export default defineComponent({
       type: iconPropType,
     },
   },
+  // 用于声明由组件触发的自定义事件。
   emits: [
     'check-change',
     'current-change',
@@ -159,7 +160,7 @@ export default defineComponent({
     const { t } = useLocale()
     const ns = useNamespace('tree')
 
-    const store = ref<TreeStore>(
+    const store = ref<TreeStore>( //ref了一个对象而已
       new TreeStore({
         key: props.nodeKey,
         data: props.data,
@@ -176,16 +177,16 @@ export default defineComponent({
         filterNodeMethod: props.filterNodeMethod,
       })
     )
-
+    // ⭐ 初始化树
     store.value.initialize()
-
+    // root为什么需要ref？  为了确保对store.value.root的更改会触发组件中使用root的响应性。
     const root = ref<Node>(store.value.root)
     const currentNode = ref<Node>(null)
     const el$ = ref<Nullable<HTMLElement>>(null)
     const dropIndicator$ = ref<Nullable<HTMLElement>>(null)
 
     const { broadcastExpanded } = useNodeExpandEventBroadcast(props)
-
+    // 拖拽状态
     const { dragState } = useDragNodeHandler({
       props,
       ctx,
@@ -193,9 +194,9 @@ export default defineComponent({
       dropIndicator$,
       store,
     })
-
+    // keydown相关
     useKeydown({ el$ }, store)
-
+    // tree是否为空
     const isEmpty = computed(() => {
       const { childNodes } = root.value
       return (
