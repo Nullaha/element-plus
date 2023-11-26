@@ -68,7 +68,7 @@ const closeMessage = (instance: MessageContext) => {
   const { handler } = instance
   handler.close()
 }
-
+// 创建一个message实例⭐
 const createMessage = (
   { appendTo, ...options }: MessageParamsNormalized,
   context?: AppContext | null
@@ -79,7 +79,7 @@ const createMessage = (
   const userOnClose = options.onClose
 
   const container = document.createElement('div')
-
+  // 组装一下props
   const props = {
     ...options,
     // now the zIndex will be used inside the message.vue component instead of here.
@@ -98,8 +98,9 @@ const createMessage = (
       render(null, container)
     },
   }
+  // 这里用createVNode来创建虚拟dom
   const vnode = createVNode(
-    MessageConstructor,
+    MessageConstructor, // message.vue
     props,
     isFunction(props.message) || isVNode(props.message)
       ? {
@@ -124,7 +125,7 @@ const createMessage = (
       vm.exposed!.visible.value = false
     },
   }
-
+  // vue组件实例竟然还能自己组装呢⭐
   const instance: MessageContext = {
     id,
     vnode,
@@ -135,6 +136,7 @@ const createMessage = (
 
   return instance
 }
+// 更新msgKey为?的实例
 const updateMessage = (instance: MessageContext, params?: MessageParams) => {
   const options: MessageOptions =
     !params || isString(params) || isVNode(params) || isFunction(params)
@@ -157,19 +159,20 @@ const message: MessageFn &
   if (isNumber(messageConfig.max) && instances.length >= messageConfig.max) {
     return { close: () => undefined }
   }
-
+  // 对传入的参数进行归一化处理
   const normalized = normalizeOptions(options)
-
+  // 如果msgKey存在且instances里有值，会进行单例判断：
   if (normalized.msgKey !== undefined && instances.length) {
     const instance = instances.find(
       ({ vnode: vm }) => vm.props?.msgKey === normalized.msgKey
     )
     if (instance) {
+      // 这里会直接去更新找到的实例的参数，而不会去创建实例了。
       updateMessage(instance, options)
       return instance.handler
     }
   }
-
+  // 对grouping的处理：
   if (normalized.grouping && instances.length) {
     const instance = instances.find(
       ({ vnode: vm }) => vm.props?.message === normalized.message
@@ -180,10 +183,11 @@ const message: MessageFn &
       return instance.handler
     }
   }
-
+  // 创建message实例：
   const instance = createMessage(normalized, context)
-
+  // 将实例放到队列中：
   instances.push(instance)
+  // 它有返回值的
   return instance.handler
 }
 
