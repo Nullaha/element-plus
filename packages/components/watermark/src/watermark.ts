@@ -28,7 +28,7 @@ export const watermarkProps = buildProps({
     default: 9,
   },
   /**
-   * @description The rotation angle of the watermark
+   * @description The rotation angle of the watermark (°)(顺时针为正)
    */
   rotate: {
     type: Number,

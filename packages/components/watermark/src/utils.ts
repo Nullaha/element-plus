@@ -21,8 +21,8 @@ export function getPixelRatio() {
 
 /** Whether to re-render the watermark */
 export const reRendering = (
-  mutation: MutationRecord,
-  watermarkElement?: HTMLElement
+  mutation: MutationRecord, //表示一个 MutationRecord，描述了 DOM 中发生的变化
+  watermarkElement?: HTMLElement //表示水印的 DOM 元素
 ) => {
   let flag = false
   // Whether to delete the watermark node

@@ -114,12 +114,13 @@ const getMarkSize = (ctx: CanvasRenderingContext2D) => {
   const content = props.content
   const width = props.width
   const height = props.height
+  // 如果没有提供图像（image 为空）且浏览器支持 measureText 方法
   if (!image && ctx.measureText) {
-    ctx.font = `${Number(fontSize.value)}px ${fontFamily.value}`
-    const contents = Array.isArray(content) ? content : [content]
+    ctx.font = `${Number(fontSize.value)}px ${fontFamily.value}` //设置ctx字体
+    const contents = Array.isArray(content) ? content : [content] // []
     const sizes = contents.map((item) => {
-      const metrics = ctx.measureText(item!)
-
+      const metrics = ctx.measureText(item!) // ! 是非空断言运算符,它告诉 TypeScript 编译器，表达式的值不会为 null 或 undefined，
+      // 返回字体的宽、高
       return [
         metrics.width,
         // Using `actualBoundingBoxAscent` to be compatible with lower version browsers (eg: Firefox < 116)
@@ -128,7 +129,9 @@ const getMarkSize = (ctx: CanvasRenderingContext2D) => {
           : metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent,
       ]
     })
+    // 多行水印时，拿最大的那个宽
     defaultWidth = Math.ceil(Math.max(...sizes.map((size) => size[0])))
+    // defaultHeight 的计算涉及到多行文本的情况，以及在行与行之间的间隔 FontGap
     defaultHeight =
       Math.ceil(Math.max(...sizes.map((size) => size[1]))) * contents.length +
       (contents.length - 1) * FontGap
@@ -152,7 +155,6 @@ const renderWatermark = () => {
 
     const ratio = getPixelRatio()
     const [markWidth, markHeight] = getMarkSize(ctx)
-
     const drawCanvas = (
       drawContent?: NonNullable<WatermarkProps['content']> | HTMLImageElement
     ) => {
@@ -219,13 +221,14 @@ const onMutate = (mutations: MutationRecord[]) => {
     return
   }
   mutations.forEach((mutation) => {
+    // 判断是否需要重新渲染水印
     if (reRendering(mutation, watermarkRef.value)) {
       destroyWatermark()
       renderWatermark()
     }
   })
 }
-
+// 目的是在 DOM 变化时检查是否需要重新渲染水印，从而保持水印的正确显示。
 useMutationObserver(containerRef, onMutate, {
   attributes: true,
   subtree: true,
