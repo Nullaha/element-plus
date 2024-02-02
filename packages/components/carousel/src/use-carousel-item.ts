@@ -16,8 +16,8 @@ export const useCarouselItem = (
   props: CarouselItemProps,
   componentName: string
 ) => {
-  const carouselContext = inject(carouselContextKey)!
-  // instance
+  const carouselContext = inject(carouselContextKey)! //在carousel组件中传了东西，在这里拿到。
+  // instance 拿当前组件实例 item
   const instance = getCurrentInstance()!
   if (!carouselContext) {
     debugWarn(
@@ -39,16 +39,17 @@ export const useCarouselItem = (
   const hover = ref(false)
   const translate = ref(0)
   const scale = ref(1)
-  const active = ref(false)
+  const active = ref(false) //当前item是否是活跃状态
   const ready = ref(false)
   const inStage = ref(false)
-  const animating = ref(false)
+  const animating = ref(false) // 当前item是否是动的 （当前活跃/旧活跃）
 
   // computed
   const { isCardType, isVertical } = carouselContext
 
   // methods
 
+  // TODO: 用于在启用循环轮播时，根据当前激活项和目标索引计算实际应用的索引
   function processIndex(index: number, activeIndex: number, length: number) {
     const lastItemIndex = length - 1
     const prevItemIndex = activeIndex - 1
@@ -68,6 +69,7 @@ export const useCarouselItem = (
   }
 
   function calcCardTranslate(index: number, activeIndex: number) {
+    debugger
     const parentWidth = unref(isVertical)
       ? carouselContext.root.value?.offsetHeight || 0
       : carouselContext.root.value?.offsetWidth || 0
@@ -81,6 +83,7 @@ export const useCarouselItem = (
     }
   }
 
+  // ✅
   function calcTranslate(
     index: number,
     activeIndex: number,
@@ -94,6 +97,7 @@ export const useCarouselItem = (
     return distance * (index - activeIndex)
   }
 
+  // ✅ 计算item在轮播中的位置和状态
   const translateItem = (
     index: number,
     activeIndex: number,
@@ -102,9 +106,10 @@ export const useCarouselItem = (
     const _isCardType = unref(isCardType)
     const carouselItemLength = carouselContext.items.value.length ?? Number.NaN
 
-    const isActive = index === activeIndex
+    const isActive = index === activeIndex // 当前item是否处于活跃状态
     if (!_isCardType && !isUndefined(oldIndex)) {
-      animating.value = isActive || index === oldIndex
+      // 如果不是卡片类型 且oldIdex不为undefined时，。。。
+      animating.value = isActive || index === oldIndex // 只有 当前活跃/旧活跃 的 item animating才为true
     }
 
     if (!isActive && carouselItemLength > 2 && carouselContext.loop) {
@@ -119,17 +124,21 @@ export const useCarouselItem = (
       translate.value = calcCardTranslate(index, activeIndex)
       scale.value = unref(active) ? 1 : CARD_SCALE
     } else {
+      // 计算tranlate值
       translate.value = calcTranslate(index, activeIndex, _isVertical)
     }
 
     ready.value = true
 
+    // 如果当前item是激活项且 carouselItemRef.value 存在，
+    // 则设置轮播容器的高度为当前轮播项的高度。
     if (isActive && carouselItemRef.value) {
       carouselContext.setContainerHeight(carouselItemRef.value.offsetHeight)
     }
   }
 
   function handleItemClick() {
+    debugger
     if (carouselContext && unref(isCardType)) {
       const index = carouselContext.items.value.findIndex(
         ({ uid }) => uid === instance.uid
@@ -139,6 +148,7 @@ export const useCarouselItem = (
   }
 
   // lifecycle
+  // TODO: 这里的states为什么要用reactive包一下？
   onMounted(() => {
     carouselContext.addItem({
       props,

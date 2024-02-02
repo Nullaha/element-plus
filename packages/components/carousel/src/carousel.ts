@@ -47,6 +47,7 @@ export const carouselProps = buildProps({
     values: ['horizontal', 'vertical'],
     default: 'horizontal',
   },
+  // 鼠标悬浮时暂停自动切换
   pauseOnHover: {
     type: Boolean,
     default: true,

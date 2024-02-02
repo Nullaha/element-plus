@@ -18,9 +18,10 @@ const getOrderedChildren = <T>(
   return uids.map((uid) => children[uid]).filter((p) => !!p)
 }
 
+// 处理子组件排序
 export const useOrderedChildren = <T extends { uid: number }>(
-  vm: ComponentInternalInstance,
-  childComponentName: string
+  vm: ComponentInternalInstance, //组件实例
+  childComponentName: string //子组件的名称
 ) => {
   const children: Record<number, T> = {}
   const orderedChildren = shallowRef<T[]>([])
