@@ -186,16 +186,15 @@ import { inputEmits, inputProps } from './input'
 import type { StyleValue } from 'vue'
 
 type TargetElement = HTMLInputElement | HTMLTextAreaElement
-
 defineOptions({
   name: 'ElInput',
-  inheritAttrs: false,
+  inheritAttrs: false, //如果你不想要一个组件自动地继承 attribute，你可以在组件选项中设置
 })
 const props = defineProps(inputProps)
 const emit = defineEmits(inputEmits)
 
-const rawAttrs = useRawAttrs()
-const slots = useSlots()
+const rawAttrs = useRawAttrs() // $attrs
+const slots = useSlots() // $slots
 
 const containerAttrs = computed(() => {
   const comboBoxAttrs: Record<string, unknown> = {}

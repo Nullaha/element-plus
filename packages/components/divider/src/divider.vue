@@ -4,6 +4,7 @@
     :style="dividerStyle"
     role="separator"
   >
+    <!-- 有插槽且水平线 -->
     <div
       v-if="$slots.default && direction !== 'vertical'"
       :class="[ns.e('text'), ns.is(contentPosition)]"
